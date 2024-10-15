@@ -1,3 +1,6 @@
 [submodule "my-app"]
 	path = my-app
 	url = https://github.com/matheusrc-dev/my-app
+[submodule "atividade-hook-use-state"]
+	path = atividade-hook-use-state
+	url = https://github.com/matheusrc-dev/atividade-hook-use-state
