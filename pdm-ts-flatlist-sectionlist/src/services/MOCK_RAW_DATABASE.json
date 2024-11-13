@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Brasil",
+    "category": "Countries"
+  },
+  {
+    "id": 2,
+    "name": "Argentina",
+    "category": "Countries"
+  },
+  {
+    "id": 3,
+    "name": "Chile",
+    "category": "Countries"
+  },
+  {
+    "id": 1,
+    "name": "Acre",
+    "category": "States"
+  },
+  {
+    "id": 2,
+    "name": "Alagoas",
+    "category": "States"
+  },
+  {
+    "id": 3,
+    "name": "Pernambuco",
+    "category": "States"
+  }
+]

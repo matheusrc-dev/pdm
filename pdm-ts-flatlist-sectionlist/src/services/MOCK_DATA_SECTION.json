@@ -1,0 +1,49 @@
+[
+  {
+    "title": "Countries",
+    "data": [
+      {
+        "id": 1,
+        "name": "Brasil"
+      },
+      {
+        "id": 2,
+        "name": "Argentina"
+      },
+      {
+        "id": 3,
+        "name": "Chile"
+      }
+    ]
+  },
+  {
+    "title": "States",
+    "data": [
+      {
+        "id": 1,
+        "name": "Acre"
+      },
+      {
+        "id": 2,
+        "name": "Alagoas"
+      },
+      {
+        "id": 3,
+        "name": "Pernambuco"
+      }
+    ]
+  },
+  {
+    "title": "Cities",
+    "data": [
+      {
+        "id": 1,
+        "name": "Guarapuava"
+      },
+      {
+        "id": 2,
+        "name": "Curitiba"
+      }
+    ]
+  }
+]
