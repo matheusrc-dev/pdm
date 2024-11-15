@@ -1,0 +1,14 @@
+[
+  { "name": "Camiseta Básica", "price": 29.99 },
+  { "name": "Calça Jeans", "price": 89.90 },
+  { "name": "Tênis Esportivo", "price": 199.99 },
+  { "name": "Jaqueta de Couro", "price": 249.99 },
+  { "name": "Boné Unissex", "price": 19.90 },
+  { "name": "Mochila Escolar", "price": 79.90 },
+  { "name": "Relógio Digital", "price": 149.99 },
+  { "name": "Óculos de Sol", "price": 59.99 },
+  { "name": "Cinto de Couro", "price": 34.90 },
+  { "name": "Chinelo de Borracha", "price": 12.99 },
+  { "name": "Fone de Ouvido Bluetooth", "price": 89.90 },
+  { "name": "Carregador Portátil", "price": 49.99 }
+]
