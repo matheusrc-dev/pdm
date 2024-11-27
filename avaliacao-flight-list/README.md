@@ -1,6 +1,8 @@
 
 # Aplicativo Duty Free - Atividade Avaliativa 1
 
+![Descrição da imagem](assets/images/logo.png)
+
 Atividade avaliativa da matéria de Programação para Dispositivos Móveis, focando na criação de um aplicativo utilizando **Expo**, **Expo Rouer** e **React Native** com **Typescript**. A aplicação possui três telas principais: **Login**, **Listagem** e **Sobre**, com funcionalidades específicas baseadas nos requisitos fornecidos pelo cliente.
 
 ---
