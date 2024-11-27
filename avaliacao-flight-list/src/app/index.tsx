@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import { useRouter, useNavigation } from 'expo-router';
 import ImageButton from '../components/login/ImageButton';
+import Logo from '../components/login/Logo';
 
 export default function LoginScreen() {
   const navigation = useNavigation();
@@ -23,7 +24,7 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bem-vindo!</Text>
+      <Logo />
 
       <TextInput
         style={styles.input}
@@ -41,7 +42,8 @@ export default function LoginScreen() {
       />
 
       <ImageButton
-        source="https://drive.google.com/drive-viewer/AKGpihZ44kk0ddGt_74THjmP94k7lTnAwZUv4m9xrE_XsfEcA10MEgfOwWBJOBQHmGSfahnh0fIFYwxfYbp4EjtuWfAfstR8KlvPIw=w1366-h651-rw-v1"
+        label='Entrar'
+        source="https://drive.google.com/u/1/drive-viewer/AKGpihaSZbaYnxTTu8vKrVzySvliG5drwI1LI7dYnYQDebVxB0udBGgymMnvd-cVd060JbziR-ZI0PHsPHfgLzr0_o84UFhloLxLyA=s1600-rw-v1"
         onPress={() => handleLogin()}
       />
     </View>
@@ -52,7 +54,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#f4f4f9',
+    backgroundColor: '#fafafa',
     paddingHorizontal: 20,
   },
   title: {
