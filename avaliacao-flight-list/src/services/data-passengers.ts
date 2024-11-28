@@ -5503,7 +5503,7 @@ const data = [
     passenger_name: "Ilene Jentin",
     passenger_avatar:
       "https://robohash.org/iustodoloremqui.png?size=50x50&set=set1",
-    origin: "China",
+    origin: "Bolivia",
     destination: "Bahamas",
   },
   {

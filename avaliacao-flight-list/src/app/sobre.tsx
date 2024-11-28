@@ -18,7 +18,7 @@ export default function Sobre() {
         style={styles.profileImage}
       />
       <Text style={styles.name}>Matheus</Text>
-      <Text style={styles.description}>Desenvolvido por</Text>
+      <Text style={styles.description}>GitHub</Text>
       <Pressable onPress={handleOpenGitHub}>
         <Text style={styles.link}>github.com/matheusrc-dev</Text>
       </Pressable>
@@ -46,12 +46,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#343a40',
-    marginBottom: 5,
+    marginBottom: 20,
   },
   description: {
     fontSize: 18,
     color: '#6c757d',
-    marginBottom: 20,
   },
   link: {
     fontSize: 18,

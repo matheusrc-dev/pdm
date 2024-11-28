@@ -30,6 +30,13 @@ export default function HeaderMenu() {
             break;
 
           case destructiveButtonIndex:
+            if (pathname === "/sobre") {
+              if (router.canDismiss()) {
+                router.dismissAll();
+              }
+              router.replace("/");
+              return;
+            }
             router.replace("/");
             break;
 
