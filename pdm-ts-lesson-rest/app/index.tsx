@@ -5,7 +5,7 @@ import { useTokenContext } from "../src/contexts/userContext";
 import api from "../src/services/api";
 
 export default function Login() {
-  const { token, setToken } = useTokenContext();
+  const { token, setAuth } = useTokenContext();
   const [email, setEmail] = useState("fulano@example.com");
   const [password, setPassword] = useState("pdm123pdm");
 
@@ -17,8 +17,7 @@ export default function Login() {
         identity: email,
         password: password,
       });
-
-      setToken(result.data.token);
+      setAuth(result.data);
     } catch (error) {
       Alert.alert("Erro", "Credenciais inválidas");
     }

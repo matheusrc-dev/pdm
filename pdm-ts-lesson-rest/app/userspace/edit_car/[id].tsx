@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useTokenContext } from "../../../src/contexts/userContext";
 import api from "../../../src/services/api";
-import { Car } from "../../../src/types/Car";
 
 export default function EditCar() {
   const router = useRouter();

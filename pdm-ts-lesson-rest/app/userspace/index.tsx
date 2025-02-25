@@ -1,31 +1,42 @@
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useTokenContext } from "../../src/contexts/userContext";
 import api from "../../src/services/api";
 import { Car } from "../../src/types/Car";
+import { CarFavorite } from "../../src/types/CarFavorite";
+import { FontAwesome } from '@expo/vector-icons';
 
 export default function Home() {
-  const { token, setToken } = useTokenContext();
+  const { token, userId, clearAuth } = useTokenContext();
   const [cars, setCars] = useState<Car[]>([]);
   const [allCars, setAllCars] = useState<Car[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [favorites, setFavorites] = useState<CarFavorite[]>([]);
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     loadCars();
+    loadFavorites();
   }, []);
 
   useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setCars(allCars);
-    } else {
-      const filtered = allCars.filter(car =>
+    let filtered = allCars;
+    
+    if (searchTerm.trim() !== "") {
+      filtered = filtered.filter(car =>
         car.brand.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setCars(filtered);
     }
-  }, [searchTerm, allCars]);
+
+    if (showOnlyFavorites) {
+      const favoriteCarIds = favorites.map(f => f.car_id);
+      filtered = filtered.filter(car => favoriteCarIds.includes(car.id));
+    }
+
+    setCars(filtered);
+  }, [searchTerm, allCars, showOnlyFavorites, favorites]);
 
   const loadCars = async () => {
     try {
@@ -40,6 +51,50 @@ export default function Home() {
     } catch (error) {
       Alert.alert("Erro", "Não foi possível carregar os carros");
     }
+  };
+
+  const loadFavorites = async () => {
+    try {
+      const response = await api.get("/api/collections/car_favorites/records", {
+        headers: {
+          Authorization: token,
+        },
+      });
+      setFavorites(response.data.items);
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível carregar os favoritos");
+    }
+  };
+
+  const toggleFavorite = async (car: Car) => {
+    try {
+      const existingFavorite = favorites.find(f => f.car_id === car.id);
+      
+      if (existingFavorite) {
+        await api.delete(`/api/collections/car_favorites/records/${existingFavorite.id}`, {
+          headers: {
+            Authorization: token,
+          },
+        });
+        setFavorites(favorites.filter(f => f.id !== existingFavorite.id));
+      } else {
+        const response = await api.post("/api/collections/car_favorites/records", {
+          user_id: userId,
+          car_id: car.id,
+        }, {
+          headers: {
+            Authorization: token,
+          },
+        });
+        setFavorites([...favorites, response.data]);
+      }
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível atualizar os favoritos");
+    }
+  };
+
+  const isFavorite = (car: Car) => {
+    return favorites.some(f => f.car_id === car.id);
   };
 
   const handleDelete = async (id: string) => {
@@ -70,7 +125,7 @@ export default function Home() {
   };
 
   const handleLogout = () => {
-    setToken("");
+    clearAuth();
     router.replace("/");
   };
 
@@ -91,6 +146,16 @@ export default function Home() {
           onChangeText={setSearchTerm}
           placeholderTextColor="#999"
         />
+        <TouchableOpacity
+          style={[styles.filterButton, showOnlyFavorites && styles.filterButtonActive]}
+          onPress={() => setShowOnlyFavorites(!showOnlyFavorites)}
+        >
+          <FontAwesome 
+            name="star" 
+            size={20} 
+            color={showOnlyFavorites ? "#FFD700" : "#666"} 
+          />
+        </TouchableOpacity>
       </View>
 
       <TouchableOpacity 
@@ -104,8 +169,20 @@ export default function Home() {
         renderItem={({ item }) => (
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Text style={styles.brandText}>{item.brand}</Text>
-              <Text style={styles.modelText}>{item.model}</Text>
+              <View style={styles.cardTitleContainer}>
+                <Text style={styles.brandText}>{item.brand}</Text>
+                <Text style={styles.modelText}>{item.model}</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => toggleFavorite(item)}
+                style={styles.favoriteButton}
+              >
+                <FontAwesome 
+                  name={isFavorite(item) ? "star" : "star-o"} 
+                  size={24} 
+                  color={isFavorite(item) ? "#FFD700" : "#666"} 
+                />
+              </TouchableOpacity>
             </View>
             <View style={styles.cardBody}>
               <Text style={styles.powerText}>{item.hp} HP</Text>
@@ -142,6 +219,24 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  filterButton: {
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: '#f0f0f0',
+    marginLeft: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  filterButtonActive: {
+    backgroundColor: '#e0e0e0',
+  },
+  favoriteButton: {
+    padding: 5,
+  },
+  cardTitleContainer: {
+    flex: 1,
+  },
+
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -166,15 +261,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 10,
     backgroundColor: "#fff",
   },
   searchInput: {
+    flex: 1,
     backgroundColor: "#f5f5f5",
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    marginRight: 10,
   },
   addButton: {
     backgroundColor: "#fe6364",
@@ -222,9 +321,8 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    justifyContent: "space-between",
   },
   brandText: {
     fontSize: 18,
