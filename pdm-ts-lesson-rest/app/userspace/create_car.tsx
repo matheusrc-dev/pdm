@@ -33,6 +33,7 @@ export default function CreateCar() {
           headers: {
             Authorization: token,
             "content-type": "application/json",
+            "ngrok-skip-browser-warning": "true"
           },
         }
       );
@@ -53,6 +54,7 @@ export default function CreateCar() {
       <View style={styles.form}>
         <Text style={styles.label}>Marca</Text>
         <TextInput
+          testID="brand-input"
           style={styles.input}
           value={brand}
           onChangeText={setBrand}
@@ -62,6 +64,7 @@ export default function CreateCar() {
 
         <Text style={styles.label}>Modelo</Text>
         <TextInput
+          testID="model-input"
           style={styles.input}
           value={model}
           onChangeText={setModel}
@@ -71,6 +74,7 @@ export default function CreateCar() {
 
         <Text style={styles.label}>Potência (HP)</Text>
         <TextInput
+          testID="hp-input"
           style={styles.input}
           value={hp}
           onChangeText={(text) => setHp(text.replace(/[^0-9]/g, ""))}
@@ -80,13 +84,13 @@ export default function CreateCar() {
         />
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.cancelButton}
             onPress={() => router.back()}>
             <Text style={styles.cancelButtonText}>Cancelar</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.submitButton}
             onPress={handleCreate}>
             <Text style={styles.submitButtonText}>Cadastrar</Text>

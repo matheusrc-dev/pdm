@@ -1,0 +1,18 @@
+appId: dev.matheusrc.pdm # Substitua pelo ID do seu app
+---
+- launchApp
+- assertVisible: "Bem-vindo"
+- assertVisible: "Faça login para continuar"
+
+- tapOn:
+    id: "email-input"
+- inputText: "fulano@example.com"
+
+- tapOn:
+    id: "password-input"
+- inputText: "pdm123pdm"
+
+- tapOn:
+    text: "Entrar"
+
+- assertVisible: "Meus Carros"

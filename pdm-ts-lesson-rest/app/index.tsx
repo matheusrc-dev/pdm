@@ -6,8 +6,8 @@ import api from "../src/services/api";
 
 export default function Login() {
   const { token, setAuth } = useTokenContext();
-  const [email, setEmail] = useState("fulano@example.com");
-  const [password, setPassword] = useState("pdm123pdm");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   if (token) return <Redirect href="/userspace" />;
 
@@ -16,6 +16,10 @@ export default function Login() {
       const result = await api.post("/api/collections/users/auth-with-password", {
         identity: email,
         password: password,
+      }, {
+        headers: {
+          "ngrok-skip-browser-warning": "true"
+        }
       });
       setAuth(result.data);
     } catch (error) {
@@ -30,6 +34,7 @@ export default function Login() {
         <Text style={styles.subtitle}>Faça login para continuar</Text>
 
         <TextInput
+          testID="email-input"
           style={styles.input}
           placeholder="Email"
           value={email}
@@ -39,6 +44,7 @@ export default function Login() {
         />
 
         <TextInput
+          testID="password-input"
           style={styles.input}
           placeholder="Senha"
           value={password}

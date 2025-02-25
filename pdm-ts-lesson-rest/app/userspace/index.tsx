@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, Modal, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useTokenContext } from "../../src/contexts/userContext";
 import api from "../../src/services/api";
 import { Car } from "../../src/types/Car";
@@ -14,6 +14,8 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [favorites, setFavorites] = useState<CarFavorite[]>([]);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [carToDelete, setCarToDelete] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -23,7 +25,7 @@ export default function Home() {
 
   useEffect(() => {
     let filtered = allCars;
-    
+
     if (searchTerm.trim() !== "") {
       filtered = filtered.filter(car =>
         car.brand.toLowerCase().includes(searchTerm.toLowerCase())
@@ -43,6 +45,7 @@ export default function Home() {
       const response = await api.get("/api/collections/cars/records", {
         headers: {
           Authorization: token,
+          "ngrok-skip-browser-warning": "true"
         },
       });
       const items = response.data.items;
@@ -58,6 +61,7 @@ export default function Home() {
       const response = await api.get("/api/collections/car_favorites/records", {
         headers: {
           Authorization: token,
+          "ngrok-skip-browser-warning": "true"
         },
       });
       setFavorites(response.data.items);
@@ -69,11 +73,12 @@ export default function Home() {
   const toggleFavorite = async (car: Car) => {
     try {
       const existingFavorite = favorites.find(f => f.car_id === car.id);
-      
+
       if (existingFavorite) {
         await api.delete(`/api/collections/car_favorites/records/${existingFavorite.id}`, {
           headers: {
             Authorization: token,
+            "ngrok-skip-browser-warning": "true"
           },
         });
         setFavorites(favorites.filter(f => f.id !== existingFavorite.id));
@@ -84,6 +89,7 @@ export default function Home() {
         }, {
           headers: {
             Authorization: token,
+            "ngrok-skip-browser-warning": "true"
           },
         });
         setFavorites([...favorites, response.data]);
@@ -98,30 +104,49 @@ export default function Home() {
   };
 
   const handleDelete = async (id: string) => {
-    Alert.alert(
-      "Confirmar",
-      "Tem certeza que deseja excluir este carro?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Excluir",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await api.delete(`/api/collections/cars/records/${id}`, {
-                headers: {
-                  Authorization: token,
-                },
-              });
-              Alert.alert("Sucesso", "Carro excluído com sucesso!");
-              loadCars();
-            } catch (error) {
-              Alert.alert("Erro", "Não foi possível excluir o carro");
-            }
+    if (Platform.OS === 'web') {
+      setCarToDelete(id);
+      setShowDeleteModal(true);
+    } else {
+      Alert.alert(
+        "Confirmar",
+        "Tem certeza que deseja excluir este carro?",
+        [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Excluir",
+            style: "destructive",
+            onPress: () => confirmDelete(id),
           },
+        ]
+      );
+    }
+  };
+
+  const confirmDelete = async (id: string) => {
+    try {
+      await api.delete(`/api/collections/cars/records/${id}`, {
+        headers: {
+          Authorization: token,
+          "ngrok-skip-browser-warning": "true"
         },
-      ]
-    );
+      });
+      if (Platform.OS === 'web') {
+        alert("Carro excluído com sucesso!");
+      } else {
+        Alert.alert("Sucesso", "Carro excluído com sucesso!");
+      }
+      loadCars();
+    } catch (error) {
+      if (Platform.OS === 'web') {
+        alert("Não foi possível excluir o carro");
+      } else {
+        Alert.alert("Erro", "Não foi possível excluir o carro");
+      }
+    } finally {
+      setShowDeleteModal(false);
+      setCarToDelete(null);
+    }
   };
 
   const handleLogout = () => {
@@ -147,18 +172,19 @@ export default function Home() {
           placeholderTextColor="#999"
         />
         <TouchableOpacity
+          testID="filter-button"
           style={[styles.filterButton, showOnlyFavorites && styles.filterButtonActive]}
           onPress={() => setShowOnlyFavorites(!showOnlyFavorites)}
         >
-          <FontAwesome 
-            name="star" 
-            size={20} 
-            color={showOnlyFavorites ? "#FFD700" : "#666"} 
+          <FontAwesome
+            name="star"
+            size={20}
+            color={showOnlyFavorites ? "#FFD700" : "#666"}
           />
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.addButton}
         onPress={() => router.push("/userspace/create_car")}>
         <Text style={styles.addButtonText}>Adicionar Novo Carro</Text>
@@ -174,25 +200,26 @@ export default function Home() {
                 <Text style={styles.modelText}>{item.model}</Text>
               </View>
               <TouchableOpacity
+                testID="favorite-button"
                 onPress={() => toggleFavorite(item)}
                 style={styles.favoriteButton}
               >
-                <FontAwesome 
-                  name={isFavorite(item) ? "star" : "star-o"} 
-                  size={24} 
-                  color={isFavorite(item) ? "#FFD700" : "#666"} 
+                <FontAwesome
+                  name={isFavorite(item) ? "star" : "star-o"}
+                  size={24}
+                  color={isFavorite(item) ? "#FFD700" : "#666"}
                 />
               </TouchableOpacity>
             </View>
             <View style={styles.cardBody}>
               <Text style={styles.powerText}>{item.hp} HP</Text>
               <View style={styles.cardActions}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.actionButton, styles.editButton]}
                   onPress={() => router.push(`/userspace/edit_car/${item.id}`)}>
                   <Text style={styles.actionButtonText}>Editar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.actionButton, styles.deleteButton]}
                   onPress={() => handleDelete(item.id)}>
                   <Text style={styles.actionButtonText}>Excluir</Text>
@@ -207,18 +234,86 @@ export default function Home() {
         ListEmptyComponent={() => (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
-              {searchTerm.trim() !== "" 
+              {searchTerm.trim() !== ""
                 ? "Nenhum carro encontrado para esta marca"
                 : "Nenhum carro cadastrado ainda"}
             </Text>
           </View>
         )}
       />
+      {/* Modal de confirmação para web */}
+      {Platform.OS === 'web' && (
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={showDeleteModal}
+          onRequestClose={() => setShowDeleteModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalText}>Tem certeza que deseja excluir este carro?</Text>
+              <View style={styles.modalButtons} testID="modalButtons">
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => setShowDeleteModal(false)}
+                >
+                  <Text style={styles.modalButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.confirmButton]}
+                  onPress={() => carToDelete && confirmDelete(carToDelete)}
+                >
+                  <Text style={styles.modalButtonText}>Excluir</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '80%',
+    maxWidth: 400,
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  modalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    minWidth: 100,
+  },
+  cancelButton: {
+    backgroundColor: '#ccc',
+  },
+  confirmButton: {
+    backgroundColor: '#fe6364',
+  },
+  modalButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 16,
+  },
   filterButton: {
     padding: 10,
     borderRadius: 5,
@@ -248,9 +343,9 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#fe6364",
   },
-  title: { 
-    fontSize: 24, 
-    fontWeight: "bold", 
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
     color: "#fff"
   },
   logoutButton: {
